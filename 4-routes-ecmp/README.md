@@ -4,7 +4,7 @@ This document provides instructions on how to deploy the example implementation 
 
 This pattern deploys two [nginx](https://nginx.org/en/) webservers utilizing a floating IP address. When you request the document root (/) from the floating IP address (the IP address of the static route) you receive a response that identifies the first or second web server.
 
-The following diagram shows the architecture that you deploy. It consists of two Compute Engine instances each in a separate autohealing instance group. It also contains a static Google Cloud route with priority value 500 with the floating IP address as a destination and the first instance as a next hop. A second  route with equal priority value and destination points at the second instance as the next hop, therefore traffic to this IP address is equally distributed to both instances.
+The following diagram shows the architecture that you deploy. It consists of two Compute Engine instances each in a separate autohealing instance group. It also contains a static Google Cloud route with priority value 500 with the floating IP address as a destination and the first instance as a next hop. A second  route with an equal priority value and destination points at the second instance as the next hop. Traffic to this IP address, therefore, is equally distributed to both instances.
 
 ![Architecture for the equal-cost multipath (ECMP) routes pattern](architecture.svg)
 
@@ -12,7 +12,7 @@ The following diagram shows the architecture that you deploy. It consists of two
 Provision the following resources in Google Cloud by using a Terraform template:
 * One VPC network and subnetwork that connects all resources
 * Two Compute Engine instances running nginx in autohealing instance groups size 1
-* A Compute Engine instance used as an internal 
+* A Compute Engine instance used as an internal client
 * A set of firewall rules to allow the client VM to reach the nginx instances using HTTP and to allow connecting by using [SSH through IAP](https://cloud.google.com/iap/docs/using-tcp-forwarding#tunneling_ssh_connections)
 * Two static routes with equal priority using the floating IP address as destination and one of the nginx instances as next hop
 
@@ -41,18 +41,18 @@ You can complete this tutorial using [Cloud Shell](https://cloud.google.com/shel
 
    * [Install Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli) version 0.15.0 or later.
 
-   * [Install Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
+   * [Install Google Cloud SDK](https://cloud.google.com/sdk/docs/install).
 
-1. Authenticate to Google Cloud by running `gcloud auth application-default login`. Alternatively use a service account as described in the [Terraform Google provider documentation](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#authentication)
+1. Authenticate to Google Cloud by running `gcloud auth application-default login`. Alternatively use a service account as described in the [Terraform Google provider documentation](https://registry.terraform.io/providers/hashicorp/google/latest/docs/guides/provider_reference#authentication).
 
-1. If not already done, clone this repository to your local host or Cloud Shell by running `git clone https://github.com/GoogleCloudPlatform/floating-ip-patterns.git`
+1. If not already done, clone this repository to your local host or Cloud Shell by running `git clone https://github.com/GoogleCloudPlatform/floating-ip-patterns.git`.
 
 ## Configuring the Terraform variables
 The Terraform code that you downloaded includes variables that you can use to customize the deployment based on your requirements. For example, you can adjust the subnet CIDR ranges and specify the project where the resources should be deployed.
 
-You can see the variables of this example in the `variables.tf` file or in the [table below](#variables)
+You can see the variables of this example in the `variables.tf` file or in the [following table](#variables).
 
-1. In the code that you downloaded, enter the `4-routes-ecmp` subdirectory: `cd floating-ip-patterns/4-routes-ecmp`
+1. In the code that you downloaded, enter the `4-routes-ecmp` subdirectory: `cd floating-ip-patterns/4-routes-ecmp`.
 
 1. Identify the variables for which you need to assign values:
 
@@ -75,7 +75,7 @@ You can see the variables of this example in the `variables.tf` file or in the [
    zone = "europe-west4-c"
    project_id = "my_project"
    ```
-   The value that you assign to each variable must match the type of that variable as declared in `variables.tf` or [the table below](#Variables).
+   The value that you assign to each variable must match the type of that variable as declared in `variables.tf` or [the following table](#Variables).
 1. Initialize Terraform:
    ```
    terraform init
@@ -101,6 +101,7 @@ You can see the variables of this example in the `variables.tf` file or in the [
    The output lists the resources that Terraform provisions when you apply the configuration.
 
    If you want to make any changes, edit the configuration, and then run `terraform validate` and `terraform plan` again.
+
 ## Provisioning resources
 When no further changes are necessary in the configuration, deploy the resources:
 
@@ -119,7 +120,7 @@ When no further changes are necessary in the configuration, deploy the resources
 You have now deployed the example implementation for the Active-active load balancing pattern.
 
 ## Testing your deployment
-1. In your browser, go to the [VM instances](https://console.cloud.google.com/compute/instances) page for your project in the Google Cloud Console
+1. In your browser, go to the [VM instances](https://console.cloud.google.com/compute/instances) page for your project in the Google Cloud Console.
 1. In the list of virtual machine instances, click *SSH* in the row of the instance named `client`.
    A separate window is opened that connects to the example client VM for this deployment.
 1. On the client VM, run:
@@ -132,7 +133,7 @@ You have now deployed the example implementation for the Active-active load bala
 1. If you run the `curl` command repeatedly you can see that requests are distributed between both nginx instances.
 
 Optionally, to test a failure case:
-1. In the list of virtual machine instances, click *SSH* in the row of the instance starting with the name `nginx-first`
+1. In the list of virtual machine instances, click *SSH* in the row of the instance starting with the name `nginx-first`.
 1. On the `nginx-first` VM, stop the `nginx` service by running:
    ```
    sudo service nginx stop
